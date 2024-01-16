@@ -23,8 +23,8 @@ run_simulation <- function(n_hyp = 1000,
                            pi1_vec = c(seq(0.05,0.15,by = 0.05),seq(0.2,0.9,by = 0.1)),
                            dependency = "decaying",
                            mu_0 = 0,    # true parameter, when the null hypothesis holds
-                           mu_1 = 4,    # fixed non centrality parameter (so power does not increase with sample size)
-                           rho = 0.5,   # does not matter if dependency = "independent"
+                           mu_1 = 5,    # fixed non centrality parameter (so power does not increase with sample size)
+                           rho = 0.8,   # does not matter if dependency = "independent"
                            sigma = 1,
                            alpha = 0.05,
                            lambda = 0.5,
@@ -60,7 +60,7 @@ run_simulation <- function(n_hyp = 1000,
   }
   
   # Set up parallel backend #
-  n_cores <- parallel::detectCores() - 8
+  n_cores <- parallel::detectCores() - 2
   clus   <- parallel::makeCluster(n_cores,type = "PSOCK")
   doParallel::registerDoParallel(cl = clus)
   
@@ -130,12 +130,12 @@ run_simulation <- function(n_hyp = 1000,
   results <- list(fwer_mat,pwr_mat,parameters)
   names(results) <- c("fwer_mat","pwr_mat","parameters")
   
-  save(results,file = paste("ResultsFWER","nS",n_sample,"lambda",lambda,"mu0",mu_0,"mu1",mu_1,format(Sys.time(), "%Y-%m-%d_%H-%M"),sep = "_"))
+  save(results,file = paste("data","n_hyp",n_hyp,"rho",rho,"mu0",mu_0,"mu1",mu_1,format(Sys.time(), "%Y-%m-%d_%H-%M"),sep = "_"))
   
   # generate plot #
   conv_res <- convert_results(results)
   plot <- plotting(conv_res)
-  save_plot(name =  paste("Plot","nS",n_sample,"lambda",lambda,"mu0",mu_0,"mu1",mu_1,format(Sys.time(), "%Y-%m-%d_%H-%M"),".png",sep = "_"),plot = plot)
+  save_plot(name =  paste("plot","n_hyp",n_hyp,"rho",rho,"mu0",mu_0,"mu1",mu_1,format(Sys.time(), "%Y-%m-%d_%H-%M"),sep = "_"),plot = plot)
   
   return(results)
 }

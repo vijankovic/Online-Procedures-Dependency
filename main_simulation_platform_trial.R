@@ -39,7 +39,7 @@ run_simulationPlatform <- function(n_hyp = 50,
 
   
   # Set up parallel backend #
-  n_cores <- parallel::detectCores() - 4
+  n_cores <- parallel::detectCores() - 2
   clus   <- parallel::makeCluster(n_cores,type = "PSOCK")
   doParallel::registerDoParallel(cl = clus)
   
@@ -48,7 +48,7 @@ run_simulationPlatform <- function(n_hyp = 50,
     print(paste("Computing for pi1 =",pi1,"..."))
     cur_data <- foreach (j = 1:n_runs,.combine = 'rbind',.packages = c("MASS","onlineFDR"),.export = c("continuous_spending","continuous_adaptive_graph") ) %dopar% {
       set.seed(j) 
-      fun<-function(vec){
+      fun <- function(vec){
         result <- vector(mode = "numeric",length = n_hyp)
         for (i in 1:n_hyp) {
           result[i] <- mean(vec[((i-1)*persons_per_unit*offset + 1):((i-1)*persons_per_unit*offset + n_sample)])
@@ -112,18 +112,18 @@ run_simulationPlatform <- function(n_hyp = 50,
   rownames(fwer_mat) <- rownames(pwr_mat) <- procedures
   colnames(fwer_mat) <- colnames(pwr_mat) <- pi1_vec
   
-  parameters        <- c(n_hyp,n_runs,n_sample,alpha,lambda,tau,mu_0,mu_1,mu_C,sigma)
-  names(parameters) <- c("n_hyp","n_runs","n_sample","alpha","lambda","tau","mu0","mu1","muC","sigma")
+  parameters        <- c(n_hyp,n_runs,n_sample,alpha,lambda,tau,mu_0,mu_1,mu_C,sigma,persons_per_unit,offset)
+  names(parameters) <- c("n_hyp","n_runs","n_sample","alpha","lambda","tau","mu0","mu1","muC","sigma","persons_per_unit","offset")
   
   results <- list(fwer_mat,pwr_mat,parameters)
   names(results) <- c("fwer_mat","pwr_mat","parameters")
   
-  save(results,file = paste("ResultsFWER","nS",n_sample,"lambda",lambda,"offset",offset,"mu1",mu_1,format(Sys.time(), "%Y-%m-%d_%H-%M"),sep = "_"))
+  save(results,file = paste("data","n_hyp",n_hyp,"lambda",lambda,"mu0",mu_0,"mu1",mu_1,format(Sys.time(), "%Y-%m-%d_%H-%M"),sep = "_"))
   
   # generate plot #
   conv_res <- convert_results(results)
   plot <- plotting(conv_res)
-  save_plot(name =  paste("Plot","nS",n_sample,"lambda",lambda,"mu0",mu_0,"mu1",mu_1,format(Sys.time(), "%Y-%m-%d_%H-%M"),".png",sep = "_"),plot = plot)
+  save_plot(name =  paste("plot","n_hyp",n_hyp,"lambda",lambda,"mu0",mu_0,"mu1",mu_1,format(Sys.time(), "%Y-%m-%d_%H-%M"),sep = "_"),plot = plot)
   
   
   return(results)
